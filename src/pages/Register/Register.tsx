@@ -7,15 +7,15 @@ import { useState, useEffect } from 'react'
 
 const Register = () => {
 
-  const [displayName, setDisplayName] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
-  const [error, setError] = useState("")
+  const [displayName, setDisplayName] = useState<string>("")
+  const [email, setEmail] = useState<string>("")
+  const [password, setPassword] = useState<string>("")
+  const [confirmPassword, setConfirmPassword] = useState<string>("")
+  const [error, setError] = useState<string>("")
 
-  const [createUser, error: authError, loading] = useAuthentication()
+  const {createUser, error: authError, loading} = useAuthentication()
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     setError("")
@@ -61,7 +61,7 @@ const Register = () => {
           </label>
           <label>
             <span>Senha:</span>
-            <input type="password" name='confirmPassword' required placeholder='Confirme a sua senha' value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}/>
+            <input type="password" name='confirmPassword' required placeholder='Confirmar senha' value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}/>
           </label>
           {!loading && <button className='btn'>Cadastrar</button>}
           {loading && <button className='btn' disabled>Aguarde...</button>}

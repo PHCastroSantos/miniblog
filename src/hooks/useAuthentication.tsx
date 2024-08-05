@@ -1,13 +1,11 @@
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, signOut } from "firebase/auth";
 import { useState, useEffect } from "react";
+import {auth} from '../firebase/config'
 
 export const useAuthentication = () => {
-    const [error, setError] = useState("")
-    const [loading, setLoading] = useState(null)
-
-    const [cancelled, setCancelled] = useState(false)
-
-    const auth = getAuth()
+    const [error, setError] = useState<string | null>(null)
+    const [loading, setLoading] = useState<boolean>(false)
+    const [cancelled, setCancelled] = useState<boolean>(false)
 
     function checkIfIsCancelled() {
         if (cancelled) {
@@ -15,7 +13,7 @@ export const useAuthentication = () => {
         }
     }
 
-    const createUser = async (data) => {
+    const createUser = async (data: {email: string; password: string; displayName: string}) => {
         checkIfIsCancelled()
 
         setLoading(true)
@@ -35,10 +33,7 @@ export const useAuthentication = () => {
 
             return user
 
-        } catch(error) {
-
-            console.log(error.message)
-            console.log(typeof error.message)
+        } catch(error: any) {
 
             let systemErrorMessage
 
