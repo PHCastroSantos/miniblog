@@ -1,23 +1,25 @@
 import styles from './CreatePost.module.css'
 
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, FormEvent } from 'react'
+import { Navigate, useNavigate } from 'react-router-dom'
 import { useAuthValue } from '../../context/AuthContext'
 import { useInsertDocument } from '../../hooks/useInsertDocument'
 
 const CreatePost = () => {
 
-  const [title, setTitle] = useState("")
-  const [image, setImage] = useState("")
-  const [body, setBody] = useState("")
-  const [tags, setTags] = useState([])
-  const [formError, setFormError] = useState("")
+  const [title, setTitle] = useState<string>("")
+  const [image, setImage] = useState<string>("")
+  const [body, setBody] = useState<string>("")
+  const [tags, setTags] = useState<string>("")
+  const [formError, setFormError] = useState<string>("")
 
-  const [insertDocument, response] = useInsertDocument("posts")
+  const {insertDocument, response} = useInsertDocument("posts")
 
-  const {user} = useAuthValue
+  const navigate = useNavigate()
 
-  const handleSubmit = (e) => {
+  const {user} = useAuthValue()
+
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
     setFormError("")
 
@@ -25,16 +27,26 @@ const CreatePost = () => {
       new URL(image)
     } catch(error) {
       setFormError("A imagem precisa ser uma URL.")
+      return
+    }
+
+    const tagsArray = tags.split(",").map((tag) => tag.trim().toLowerCase())
+
+    if(!title || !image || !tags || !body) {
+      setFormError("Por favor, preencha todos os campos!")
+      return
     }
 
     insertDocument({
       title,
       image,
       body,
-      tags,
+      tags: tagsArray,
       uid: user.uid,
       createdBy: user.displayName
     })
+
+    navigate("/")
   }
 
   return (
@@ -64,6 +76,7 @@ const CreatePost = () => {
         {!response.loading && <button className='btn'>Cadastrar</button>}
         {response.loading && (<button className='btn' disabled>Aguarde...</button>)}
         {response.error && <p className='error'>{response.error}</p>}
+        {formError && <p className='error'>{formError}</p>}
       </form>
     </div>
   )

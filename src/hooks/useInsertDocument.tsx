@@ -1,13 +1,23 @@
-import { useState, useEffect, useReducer } from "react";
+import { useState, useEffect, useReducer, Reducer } from "react";
 import { db } from "../firebase/config";
 import { collection, addDoc, Timestamp, loadBundle } from "firebase/firestore";
 
-const initialState = {
+interface State {
+    loading: boolean | null;
+    error: string | null
+}
+
+interface Action {
+    type: string
+    payload?: any
+}
+
+const initialState: State = {
     loading: null,
     error: null
 }
 
-const insertReducer = (state, action) => {
+const insertReducer: Reducer<State, Action> = (state, action) => {
     switch(action.type) {
         case "LOADING" :
             return {loading: true, error: null}
@@ -20,19 +30,19 @@ const insertReducer = (state, action) => {
     }
 }
 
-export const useInsertDocument = (docCollection) => {
+export const useInsertDocument = (docCollection: string) => {
 
     const [response, dispatch] = useReducer(insertReducer, initialState)
 
     const [cancelled, setCancelled] = useState(false)
 
-    const checkCancelledBeforeDispatch = (action) => {
+    const checkCancelledBeforeDispatch = (action: Action) => {
         if(!cancelled) {
             dispatch(action)
         }
     }
 
-    const insertDocument = async(document) => {
+    const insertDocument = async(document: any) => {
 
         checkCancelledBeforeDispatch({
             type: "LOADING"
@@ -50,9 +60,10 @@ export const useInsertDocument = (docCollection) => {
                 payload: insertedDocument
             })
         } catch (error) {
+            const errorMessage = (error as Error).message
             checkCancelledBeforeDispatch({
                 type: "ERROR",
-                payload: error.message,
+                payload: errorMessage,
             })
         }
     }
