@@ -1,6 +1,6 @@
 import { useState, useEffect, useReducer, Reducer } from "react";
 import { db } from "../firebase/config";
-import { collection, addDoc, Timestamp } from "firebase/firestore";
+import { doc, deleteDoc } from "firebase/firestore";
 
 interface State {
     loading: boolean | null;
@@ -17,11 +17,11 @@ const initialState: State = {
     error: null
 }
 
-const insertReducer: Reducer<State, Action> = (state, action) => {
+const deleteReducer: Reducer<State, Action> = (state, action) => {
     switch(action.type) {
         case "LOADING" :
             return {loading: true, error: null}
-        case "INSERTED_DOC":
+        case "DELETED_DOC":
             return {loading: false, error: null}
         case "ERROR":
             return {loading: false, error: action.payload}
@@ -30,9 +30,9 @@ const insertReducer: Reducer<State, Action> = (state, action) => {
     }
 }
 
-export const useInsertDocument = (docCollection: string) => {
+export const useDeleteDocument = (docCollection: string) => {
 
-    const [response, dispatch] = useReducer(insertReducer, initialState)
+    const [response, dispatch] = useReducer(deleteReducer, initialState)
 
     const [cancelled, setCancelled] = useState(false)
 
@@ -42,22 +42,19 @@ export const useInsertDocument = (docCollection: string) => {
         }
     }
 
-    const insertDocument = async(document: any) => {
+    const deleteDocument = async(id: any) => {
 
         checkCancelledBeforeDispatch({
             type: "LOADING"
         })
 
         try {
-            const newDocument = {...document, createdAt: Timestamp.now()}
 
-            const insertedDocument = await addDoc(
-                collection(db, docCollection),
-                newDocument
-            )
+            const deletedDocument = await deleteDoc(doc(db, docCollection, id))
+
             checkCancelledBeforeDispatch({
-                type: "INSERTED_DOC",
-                payload: insertedDocument
+                type: "DELETED_DOC",
+                payload: deletedDocument,
             })
         } catch (error) {
             const errorMessage = (error as Error).message
@@ -72,5 +69,5 @@ export const useInsertDocument = (docCollection: string) => {
         return () => setCancelled(true)
     }, [])
 
-    return {insertDocument, response}
+    return {deleteDocument, response}
 }

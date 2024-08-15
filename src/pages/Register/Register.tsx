@@ -1,5 +1,3 @@
-import { db } from '../../firebase/config'
-
 import { useAuthentication } from '../../hooks/useAuthentication'
 import styles from './Register.module.css'
 

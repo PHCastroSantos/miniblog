@@ -1,6 +1,12 @@
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, signOut } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, signOut } from "firebase/auth";
 import { useState, useEffect } from "react";
 import {auth} from '../firebase/config'
+
+interface AuthData {
+    email: string,
+    password: string,
+    displayName?: string
+}
 
 export const useAuthentication = () => {
     const [error, setError] = useState<string | null>(null)
@@ -13,7 +19,7 @@ export const useAuthentication = () => {
         }
     }
 
-    const createUser = async (data: {email: string; password: string; displayName: string}) => {
+    const createUser = async (data: AuthData) => {
         checkIfIsCancelled()
 
         setLoading(true)
@@ -55,15 +61,15 @@ export const useAuthentication = () => {
         signOut(auth)
     }
 
-    const login = async(data)=> {
+    const login = async(data: Omit<AuthData, 'displayName'>)=> {
         checkIfIsCancelled()
         setLoading(true)
-        setError(false)
+        setError(null)
 
         try{
             await signInWithEmailAndPassword(auth, data.email, data.password)
             setLoading(false)
-        } catch(error) {
+        } catch(error: any) {
             let systemErrorMessage
             if(error.message.includes("user-not-found")) {
                 systemErrorMessage = "Usuário não encontrado."
