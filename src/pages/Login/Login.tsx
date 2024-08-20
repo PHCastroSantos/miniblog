@@ -20,7 +20,7 @@ const Login = () => {
       password
     }
 
-      const res = await login(user)
+    await login(user)
 
   }
 
