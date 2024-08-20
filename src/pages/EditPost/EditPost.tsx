@@ -3,14 +3,13 @@ import styles from './EditPost.module.css'
 import { useState, FormEvent, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useAuthValue } from '../../context/AuthContext'
-import { useInsertDocument } from '../../hooks/useInsertDocument'
 import { useFetchDocument } from '../../hooks/useFetchDocument'
 import { useUpdateDocument } from '../../hooks/useUpdateDocument'
 
 const EditPost = () => {
 
     const {id} = useParams()
-    const {document: post} = useFetchDocument("posts", id)
+    const {document: post} = useFetchDocument("posts", id || "")
 
   const [title, setTitle] = useState<string>("")
   const [image, setImage] = useState<string>("")
@@ -20,9 +19,9 @@ const EditPost = () => {
 
   useEffect(() => {
     if(post) {
-        setTitle(post.title)
-        setBody(post.body)
-        setImage(post.image)
+        setTitle(post.title || "" )
+        setBody(post.body || "")
+        setImage(post.image || "")
 
         const textTags = post.tagsArray.join(", ")
         setTags(textTags)
@@ -58,18 +57,22 @@ const EditPost = () => {
       image,
       body,
       tags: tagsArray,
-      uid: user.uid,
-      createdBy: user.displayName
+      uid: user?.uid,
+      createdBy: user?.displayName
     }
 
-    updateDocument(id, data)
-
-    navigate("/dashboard")
+    if (id) {
+      updateDocument(id, data)
+      navigate("/dashboard")
+    } else {
+      setFormError("O ID do post é inválido.")
+    }
   }
 
   return (
     <div className={styles.edit_post}>
-        if(post && (
+
+        {post? (
             <>
             <h2>Editando post: {post.title}</h2>
       <p>Altere os dados do post como desejar.</p>
@@ -102,7 +105,9 @@ const EditPost = () => {
         {formError && <p className='error'>{formError}</p>}
       </form>
             </>
-        ))
+
+        ): (null)}
+
     </div>
   )
 }
